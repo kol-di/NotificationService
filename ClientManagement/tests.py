@@ -6,9 +6,6 @@ from .models import Client, ClientTag, ClientNetworkCode
 
 
 class CreateClientTest(APITestCase):
-    def setUp(self):
-        self.factory = APIRequestFactory()
-
     def test_create_client(self):
         url = reverse('client-list')
         data = {
