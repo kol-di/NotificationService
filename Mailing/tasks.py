@@ -61,7 +61,6 @@ def choose_client_ids(codes, tags):
         query2 = query1
 
     print(query2)
-    # print(len(connection.queries))
     ids = query2.values_list('pk', flat=True)
 
     return ids
