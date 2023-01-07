@@ -20,7 +20,7 @@ class MailingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mailing
-        fields = ('start_datetime', 'end_datetime', 'text', 'network_code', 'client_tags')
+        fields = ('id', 'start_datetime', 'end_datetime', 'text', 'network_code', 'client_tags')
 
     def validate(self, attrs):
         if attrs['start_datetime'] >= attrs['end_datetime']:
