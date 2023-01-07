@@ -23,6 +23,10 @@ class MailingSerializer(serializers.ModelSerializer):
         fields = ('id', 'start_datetime', 'end_datetime', 'text', 'network_code', 'client_tags')
 
     def validate(self, attrs):
+        if self.partial:
+            for attr in ['start_datetime', 'end_datetime', 'text']:
+                attrs[attr] = attrs.get(attr, getattr(self.instance, attr))
+
         if attrs['start_datetime'] >= attrs['end_datetime']:
             raise serializers.ValidationError("End datetime should be less than start")
         return attrs
