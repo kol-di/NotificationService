@@ -2,9 +2,25 @@ from .models import Client
 from .serializers import ClientSerializer
 
 from rest_framework import viewsets
+import logging
 
 
-class ClientViewSet(viewsets.ModelViewSet):
+class LoggingModelViewSetMixin:
+    def perform_create(self, serializer):
+        serializer.save()
+        logging.info(f'Client id:{serializer.instance.id} created')
+
+    def perform_destroy(self, instance):
+        instance_id = instance.id
+        instance.delete()
+        logging.info(f'Client id:{instance_id} deleted')
+
+    def perform_update(self, serializer):
+        serializer.save()
+        logging.info(f'Client id:{serializer.instance.id} updated')
+
+
+class ClientViewSet(LoggingModelViewSetMixin, viewsets.ModelViewSet):
     """
     retrieve:
     Get information about particular client.

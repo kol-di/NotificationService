@@ -6,6 +6,7 @@ import requests
 from dotenv import dotenv_values
 import json
 import uuid
+import logging
 
 from ClientManagement.models import Client
 from .models import Message
@@ -20,11 +21,11 @@ class ExternalHTTPException(Exception):
 
 class CallbackTask(Task):
     def on_success(self, retval, celery_task_id, args, kwargs):
-        print('CALLBACK SUCCESS')
+        logging.info(f'Message id:{args[2]} status changed: {Message.SUCCESS}')
         Message.objects.filter(pk=args[2]).update(status=Message.SUCCESS)
 
     def on_failure(self, exc, celery_task_id, args, kwargs, einfo):
-        print('CALLBACK FALIURE')
+        logging.info(f'Message id:{args[2]} status changed: {Message.FAILURE}')
         Message.objects.filter(pk=args[2]).update(status=Message.FAILURE)
 
 
@@ -91,6 +92,7 @@ def process_mailing(mailing_instance):
             eta=max(timezone.now(), start_datetime),
             task_id=celery_task_id,
         )
+        logging.info(f'Message id:{api_task_id} created')
 
         time.sleep(1)
         print(res.status)
