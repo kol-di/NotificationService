@@ -41,29 +41,3 @@ class Client(models.Model):
         max_length=32,
         choices=TIMEZONES,
         default='Europe/Moscow')
-
-
-class Message(models.Model):
-    CREATED = 'CR'
-    SENT = 'ST'
-    RECEIVED = 'RC'
-    FAILED = 'FL'
-    STATUS_CHOICES = [
-        (CREATED, 'Created'),
-        (SENT, 'Sent'),
-        (RECEIVED, 'Received'),
-        (FAILED, 'Failed')
-    ]
-    status = models.CharField(
-        max_length=2,
-        choices=STATUS_CHOICES,
-        default=CREATED)
-    creation_time = models.DateTimeField(
-        blank=True,
-        null=True)
-    mailing_id = models.ForeignKey(
-        'Mailing.Mailing',
-        on_delete=models.PROTECT)
-    client_id = models.ForeignKey(
-        Client,
-        on_delete=models.PROTECT)
