@@ -45,23 +45,21 @@ def send_message(client_id, text, task_id):
     res = requests.post(endpoint, data=json.dumps(data), headers=headers)
     if res.status_code >= 300:
         raise ExternalHTTPException(res.status_code)
-    print(endpoint, task_id)
 
 
 def choose_client_ids(codes, tags):
+    # empty codes list means all codes
     if codes:
         query1 = Client.objects.select_related('network_code').filter(network_code__code__in=codes)
     else:
         query1 = Client.objects.all()
 
-    print(query1)
     # empty tags list means all tags
     if tags:
         query2 = query1.prefetch_related('tags').filter(tags__tag__in=tags)
     else:
         query2 = query1
 
-    print(query2)
     ids = query2.values_list('pk', flat=True)
 
     return ids
@@ -93,8 +91,3 @@ def process_mailing(mailing_instance):
             task_id=celery_task_id,
         )
         logging.info(f'Message id:{api_task_id} created')
-
-        time.sleep(1)
-        print(res.status)
-        print(res)
-
