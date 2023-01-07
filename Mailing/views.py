@@ -10,6 +10,27 @@ from .celery import app
 
 
 class MailingViewSet(viewsets.ModelViewSet):
+    """
+    retrieve:
+    Get information about particular mailing.
+
+    list:
+    Get information about all mailings.
+
+    create:
+    Create new mailing and schedule related messages.
+
+    destroy:
+    Delete existing mailing and retrieve related messages.
+
+    update:
+    Update mailing parameters and reschedule related messages.
+    Required fields must be specified.
+
+    partial_update:
+    Update mailing parameters and reschedule related messages.
+    Required fields will be derived from older version if not specified.
+    """
     serializer_class = MailingSerializer
 
     def get_queryset(self):
@@ -34,6 +55,9 @@ class MailingViewSet(viewsets.ModelViewSet):
         detail=True,
         serializer_class=MailingMessagesStatsSerializer)
     def stats(self, request, pk=None):
+        """
+        Get information about messages, related to the given mailing
+        """
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -43,6 +67,9 @@ class MailingViewSet(viewsets.ModelViewSet):
         detail=False,
         url_path='stats')
     def mailing_stats(self, request, pk=None):
+        """
+        Get aggregated statistics about all messages and their statuses
+        """
         queryset = self.get_queryset().prefetch_related('message_set')
 
         res = []
