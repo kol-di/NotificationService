@@ -1,4 +1,4 @@
-from .models import Mailing
+from .models import Mailing, Message
 from ClientManagement.models import ClientTag, ClientNetworkCode
 
 from rest_framework import serializers
@@ -28,5 +28,17 @@ class MailingSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class MessageSerializer(serializers.ModelSerializer):
+    client_id = serializers.PrimaryKeyRelatedField(read_only=True, source='client')
+
+    class Meta:
+        model = Message
+        fields = ['id', 'status', 'client_id', 'creation_time']
 
 
+class MailingMessagesStatsSerializer(serializers.ModelSerializer):
+    messages = MessageSerializer(many=True, read_only=True, source='message_set')
+
+    class Meta:
+        model = Mailing
+        fields = ['id', 'text', 'messages']
