@@ -9,23 +9,16 @@ from django.utils.dateparse import parse_datetime
 
 
 class CreateMailingTest(APITestCase):
-    @classmethod
-    def setUpTestData(cls):
-        """
-        Client 1; 495, [important]
-        Client 2; 499, [important]
-        Client 3; 495, [unimportant]
-        """
+    def setUp(self):
         tags = [ClientTag(tag=tag) for tag in ['important', 'unimportant']]
         ClientTag.objects.bulk_create(tags)
         codes = [ClientNetworkCode(code=code) for code in [495, 499]]
         ClientNetworkCode.objects.bulk_create(codes)
-        clients = Client.objects.bulk_create([
+        Client.objects.bulk_create([
             Client(phone_number=74991, network_code=codes[1]),
             Client(phone_number=74951, network_code=codes[0]),
             Client(phone_number=74992, network_code=codes[1])
         ])
-        map(lambda client, tag: client.tags.set(tag), zip(clients, [tags[0], tags[1], tags[0]]))
 
     def test_create_mailing(self):
         url = reverse('mailing-list')
@@ -55,12 +48,11 @@ class DeleteUpdateMailingTest(APITestCase):
         ClientTag.objects.bulk_create(tags)
         codes = [ClientNetworkCode(code=code) for code in [495, 499]]
         ClientNetworkCode.objects.bulk_create(codes)
-        clients = Client.objects.bulk_create([
+        Client.objects.bulk_create([
             Client(phone_number=74991, network_code=codes[1]),
             Client(phone_number=74951, network_code=codes[0]),
             Client(phone_number=74992, network_code=codes[1])
         ])
-        map(lambda client, tag: client.tags.set(tag), zip(clients, [tags[0], tags[1], tags[0]]))
         mailing = Mailing.objects.create(
             start_datetime=timezone.now() - timezone.timedelta(days=1),
             end_datetime=str(timezone.now() + timezone.timedelta(days=1)),
@@ -85,6 +77,9 @@ class DeleteUpdateMailingTest(APITestCase):
             "text": "TEXT_PUT",
             "network_code": [
                 495
+            ],
+            "client_tags": [
+                "important"
             ]
         }
         response2 = self.client.put(url, data2, format='json')
