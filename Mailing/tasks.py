@@ -6,6 +6,7 @@ import requests
 from dotenv import dotenv_values
 import json
 import uuid
+import logging
 
 from ClientManagement.models import Client
 from .models import Message
@@ -20,11 +21,11 @@ class ExternalHTTPException(Exception):
 
 class CallbackTask(Task):
     def on_success(self, retval, celery_task_id, args, kwargs):
-        print('CALLBACK SUCCESS')
+        logging.info(f'Message id:{args[2]} status changed: {Message.SUCCESS}')
         Message.objects.filter(pk=args[2]).update(status=Message.SUCCESS)
 
     def on_failure(self, exc, celery_task_id, args, kwargs, einfo):
-        print('CALLBACK FALIURE')
+        logging.info(f'Message id:{args[2]} status changed: {Message.FAILURE}')
         Message.objects.filter(pk=args[2]).update(status=Message.FAILURE)
 
 
@@ -44,24 +45,21 @@ def send_message(client_id, text, task_id):
     res = requests.post(endpoint, data=json.dumps(data), headers=headers)
     if res.status_code >= 300:
         raise ExternalHTTPException(res.status_code)
-    print(endpoint, task_id)
 
 
 def choose_client_ids(codes, tags):
+    # empty codes list means all codes
     if codes:
         query1 = Client.objects.select_related('network_code').filter(network_code__code__in=codes)
     else:
         query1 = Client.objects.all()
 
-    print(query1)
     # empty tags list means all tags
     if tags:
         query2 = query1.prefetch_related('tags').filter(tags__tag__in=tags)
     else:
         query2 = query1
 
-    print(query2)
-    # print(len(connection.queries))
     ids = query2.values_list('pk', flat=True)
 
     return ids
@@ -92,8 +90,4 @@ def process_mailing(mailing_instance):
             eta=max(timezone.now(), start_datetime),
             task_id=celery_task_id,
         )
-
-        time.sleep(1)
-        print(res.status)
-        print(res)
-
+        logging.info(f'Message id:{api_task_id} created')

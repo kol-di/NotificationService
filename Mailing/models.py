@@ -30,17 +30,13 @@ class Message(models.Model):
         blank=False)
 
     PENDING = 'PD'
-    STARTED = 'ST'
     SUCCESS = 'SC'
     FAILURE = 'FL'
-    RETRY = 'RT'
 
     STATUS_CHOICES = [
         (PENDING, 'Pending'),
-        (STARTED, 'Started'),
         (SUCCESS, 'Success'),
         (FAILURE, 'Failure'),
-        (RETRY, 'Retry'),
     ]
     status = models.CharField(
         max_length=2,
@@ -53,6 +49,7 @@ class Message(models.Model):
         on_delete=models.CASCADE)
     client = models.ForeignKey(
         'ClientManagement.Client',
-        on_delete=models.PROTECT)
+        blank=False,
+        on_delete=models.CASCADE)
     creation_time = models.DateTimeField(
         blank=False)

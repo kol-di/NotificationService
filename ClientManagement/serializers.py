@@ -27,7 +27,7 @@ class ClientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Client
-        fields = ('phone_number', 'network_code', 'tags', 'timezone',)
+        fields = ('id', 'phone_number', 'network_code', 'tags', 'timezone',)
 
 
 
